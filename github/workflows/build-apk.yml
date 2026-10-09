@@ -1,0 +1,35 @@
+
+name: Build FOCUS AI APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Flutter project
+        run: flutter create --project-name focus_ai focus_ai_build
+
+      - name: Copy app source
+        run: cp lib/main.dart focus_ai_build/lib/main.dart
+
+      - name: Build APK
+        working-directory: focus_ai_build
+        run: |
+          flutter pub get
+          flutter build apk --debug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: focus-ai-android-apk
+          path: focus_ai_build/build/app/outputs/flutter-apk/app-debug.apk
